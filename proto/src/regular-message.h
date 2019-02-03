@@ -28,8 +28,8 @@ namespace proto {
         static std::size_t message_length() noexcept;
 
     public:
-        virtual void save() override;
-        virtual void load() override;
+        void save();
+        void load();
 
     private:
         payload_t payload_;

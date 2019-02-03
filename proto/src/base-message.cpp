@@ -52,9 +52,10 @@ namespace proto {
         if(message_data_.size() < sizeof(std::uint32_t)) {
             throw std::runtime_error{"Can not read uint32: too little data"};
         }
-        const std::uint32_t *value{reinterpret_cast<const std::uint32_t *>(message_data_.data())};
+        const std::uint32_t *value_ptr{reinterpret_cast<const std::uint32_t *>(message_data_.data())};
+        const std::uint32_t value{ntohl(*value_ptr)};
         message_data_.erase(0, sizeof(std::uint32_t));
-        return ntohl(*value);
+        return value;
     }
 
 }

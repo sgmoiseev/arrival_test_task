@@ -29,8 +29,8 @@ namespace proto {
         static std::size_t message_length() noexcept;
 
     public:
-        virtual void save();
-        virtual void load();
+        void save();
+        void load();
         std::string as_string() const;
 
     protected:
