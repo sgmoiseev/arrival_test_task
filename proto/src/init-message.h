@@ -6,9 +6,9 @@ namespace proto {
 
     /*
      * init_message
-     * |*****base_message*****|*****client_id*****|
-     * |                                          |
-     * |--------------message_length--------------|
+     * |*****base_message*****|*****client_id:uint32*****|
+     * |                                                 |
+     * |-----------------message_length------------------|
      */
 
     class init_message
@@ -34,4 +34,5 @@ namespace proto {
     private:
         client_id_t client_id_;
     };
+
 }

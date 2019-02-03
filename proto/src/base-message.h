@@ -4,10 +4,10 @@
 #include <sstream>
 
 namespace proto {
+
     enum class message_type : std::uint32_t {
         init = 0,
-        regular,
-        tmp = 454
+        regular
     };
 
     /*
@@ -43,4 +43,5 @@ namespace proto {
         std::stringstream message_stream_;
         std::string message_data_;
     };
+
 }
