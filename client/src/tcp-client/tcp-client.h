@@ -29,8 +29,6 @@ namespace tcp_client {
 
         void check_libevent_result_code(int result_code, const std::string &error_msg);
         void log_error_and_throw(const std::string &error_msg);
-        proto::init_message make_init_message();
-        proto::regular_message make_regular_message(std::uint32_t payload);
 
     private:
         logger::logger logger_;

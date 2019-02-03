@@ -1,5 +1,6 @@
 #include "tcp-client.h"
 
+#include <type_traits>
 #include <cstring>
 #include <chrono>
 #include <string>
@@ -19,6 +20,27 @@ namespace {
         sin.sin_port = htons(port);
         inet_pton(AF_INET, host.c_str(), &sin.sin_addr.s_addr);
         return sin;
+    }
+
+    template<typename msg_t,
+             typename = std::enable_if<std::is_base_of<msg_t, proto::base_message>::value>
+             >
+    msg_t make_message(std::uint32_t value)
+    {
+        msg_t msg{value};
+        msg.save();
+        return msg;
+    }
+
+    proto::init_message make_init_message(proto::init_message::client_id_t client_id)
+    {
+        return make_message<proto::init_message>(client_id);
+    }
+
+    proto::regular_message make_regular_message()
+    {
+        const auto rand_value{static_cast<std::uint32_t>(std::rand())};
+        return make_message<proto::regular_message>(rand_value);
     }
 
 }
@@ -64,7 +86,7 @@ namespace tcp_client {
         check_libevent_result_code(bufferevent_enable(bev, EV_WRITE),
                                    "Can not enable bufferevent for writing");
 
-        const auto init_message{make_init_message()};
+        const auto init_message{make_init_message(client_id_)};
         write_message(bev, init_message.as_string());
 
         const auto sock{fill_sockaddr(host_, port_)};
@@ -84,8 +106,7 @@ namespace tcp_client {
     void tcp_client::on_ready_write(bufferevent *bev)
     {
         logger_.info("Send next message: ", curr_message_number_);
-        const auto rand_value{static_cast<std::uint32_t>(std::rand())};
-        const auto regular_message{make_regular_message(rand_value)};
+        const auto regular_message{make_regular_message()};
         write_message(bev, regular_message.as_string());
         if(++curr_message_number_ < max_messages_count_) {
             using namespace std::chrono_literals;
@@ -115,19 +136,5 @@ namespace tcp_client {
     {
         logger_.error(error_msg);
         throw std::runtime_error{error_msg};
-    }
-
-    proto::init_message tcp_client::make_init_message()
-    {
-        proto::init_message msg{client_id_};
-        msg.save();
-        return msg;
-    }
-
-    proto::regular_message tcp_client::make_regular_message(std::uint32_t payload)
-    {
-        proto::regular_message msg{payload};
-        msg.save();
-        return msg;
     }
 }
