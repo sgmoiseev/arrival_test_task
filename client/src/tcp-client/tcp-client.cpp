@@ -105,8 +105,9 @@ namespace tcp_client {
 
     void tcp_client::on_ready_write(bufferevent *bev)
     {
-        logger_.info("Send next message: ", curr_message_number_);
         const auto regular_message{make_regular_message()};
+        logger_.info("Send next message: ", curr_message_number_,
+                     " with value: ", regular_message.payload());
         write_message(bev, regular_message.as_string());
         if(++curr_message_number_ < max_messages_count_) {
             using namespace std::chrono_literals;
