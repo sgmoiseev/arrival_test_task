@@ -19,8 +19,8 @@ namespace tcp_client {
         void on_ready_write(bufferevent *bev);
         void on_next_event(short what);
 
-        template<typename T>
-        void check_null(const T &ptr, const std::string &error_msg)
+        template<typename ptr_t>
+        void check_null(const ptr_t &ptr, const std::string &error_msg)
         {
             if(!ptr) {
                 log_error_and_throw(error_msg);

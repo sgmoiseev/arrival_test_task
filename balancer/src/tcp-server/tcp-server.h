@@ -20,8 +20,8 @@ namespace balancer {
     private:
         void start_accept(evutil_socket_t socket, const std::string &client_addr);
 
-        template<typename T>
-        void check_null(const T &ptr, const std::string &error_msg)
+        template<typename ptr_t>
+        void check_null(const ptr_t &ptr, const std::string &error_msg)
         {
             if(!ptr) {
                 logger_.error(error_msg);
