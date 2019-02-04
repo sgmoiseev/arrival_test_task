@@ -12,6 +12,7 @@ namespace proto {
 
     base_message::base_message(const std::string &data)
         : message_data_{data.substr(message_prefix_.size())}
+        , message_row_data_{data}
     { }
 
     void base_message::save()
@@ -28,6 +29,11 @@ namespace proto {
     std::string base_message::as_string() const
     {
         return message_stream_.str();
+    }
+
+    const std::string &base_message::row_data() const noexcept
+    {
+        return message_row_data_;
     }
 
     message_type base_message::type() const noexcept

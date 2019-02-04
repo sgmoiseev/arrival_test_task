@@ -32,6 +32,7 @@ namespace proto {
         void save();
         void load();
         std::string as_string() const;
+        const std::string &row_data() const noexcept;
 
     protected:
         void save_uint32(std::uint32_t value);
@@ -42,6 +43,7 @@ namespace proto {
         const static std::string message_prefix_;
         std::stringstream message_stream_;
         std::string message_data_;
+        const std::string message_row_data_;
     };
 
     template<typename msg_t,
