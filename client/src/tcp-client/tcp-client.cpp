@@ -1,4 +1,5 @@
 #include "tcp-client.h"
+#include <common/src/types.h>
 
 #include <type_traits>
 #include <cstring>
@@ -6,7 +7,6 @@
 #include <string>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#include <event2/buffer.h>
 #include <cstdlib>
 #include <thread>
 
@@ -47,9 +47,6 @@ namespace {
 
 namespace tcp_client {
 
-    using event_base_ptr = std::unique_ptr<event_base, decltype(&event_base_free)>;
-    using bufferevent_ptr = std::unique_ptr<bufferevent, decltype(&bufferevent_free)>;
-
     tcp_client::tcp_client(std::uint32_t client_id, const std::string &host, std::uint16_t port)
         : logger_{"tcp_client"}
         , client_id_{client_id}
@@ -62,11 +59,10 @@ namespace tcp_client {
         logger_.info("Start client with id: ", client_id_,
                      ". Try to send messages to server: ", host_, ":", port_);
 
-        auto eb{event_base_ptr(event_base_new(), &event_base_free)};
+        auto eb{common::event_base_ptr(event_base_new())};
         check_null(eb, "Can not create new event_base");
 
-        auto buffer{bufferevent_ptr(bufferevent_socket_new(eb.get(), -1, BEV_OPT_CLOSE_ON_FREE),
-                                                           &bufferevent_free)};
+        auto buffer{common::bufferevent_ptr(bufferevent_socket_new(eb.get(), -1, BEV_OPT_CLOSE_ON_FREE))};
         check_null(eb, "Can not create new bufferevent");
 
         const auto on_write = [](bufferevent *bev, void *ctx)

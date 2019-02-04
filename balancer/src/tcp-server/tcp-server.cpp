@@ -4,7 +4,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-
 namespace {
     std::string address_from_sockaddr(sockaddr *address)
     {
@@ -30,7 +29,7 @@ namespace balancer {
 
     void tcp_server::start()
     {
-        eb_ = event_base_ptr(event_base_new(), &event_base_free);
+        eb_ = common::event_base_ptr(event_base_new());
         check_null(eb_, "Can not create new event_base");
 
         const sockaddr_in sin{fill_sockaddr(port_, INADDR_ANY)};
@@ -43,10 +42,9 @@ namespace balancer {
         };
 
         const auto listener_options{LEV_OPT_CLOSE_ON_FREE|LEV_OPT_REUSEABLE};
-        listener_ = listener_ptr(
+        listener_ = common::listener_ptr(
                     evconnlistener_new_bind(eb_.get(), accept_conn_cb, this, listener_options,
-                                            -1, reinterpret_cast<const sockaddr*>(&sin), sizeof(sin)),
-                    &evconnlistener_free
+                                            -1, reinterpret_cast<const sockaddr*>(&sin), sizeof(sin))
                     );
         check_null(listener_, "Can not create new listener");
 

@@ -1,13 +1,8 @@
 #pragma once
 
+#include <common/src/types.h>
 #include <logger/src/logger.h>
 #include <proto/src/init-message.h>
-
-#include <memory>
-
-#include <event2/event.h>
-#include <event2/buffer.h>
-#include <event2/bufferevent.h>
 
 namespace balancer {
 
@@ -22,7 +17,6 @@ namespace balancer {
     class tcp_session
         : public session_iface
     {
-        using bufferevent_ptr = std::unique_ptr<bufferevent, decltype(&bufferevent_free)>;
 
     public:
         tcp_session(event_base *base,
@@ -30,7 +24,7 @@ namespace balancer {
                     close_op_t close_op,
                     logger::logger &logger)
             : close_op_{close_op}
-            , buffer_{bufferevent_ptr(bufferevent_socket_new(base, socket, BEV_OPT_CLOSE_ON_FREE), &bufferevent_free)}
+            , buffer_{common::bufferevent_ptr(bufferevent_socket_new(base, socket, BEV_OPT_CLOSE_ON_FREE))}
             , logger_{logger}
         {}
 
@@ -89,7 +83,7 @@ namespace balancer {
 
     private:
         close_op_t close_op_;
-        bufferevent_ptr buffer_;
+        common::bufferevent_ptr buffer_;
         logger::logger &logger_;
     };
 }
