@@ -34,6 +34,18 @@ namespace balancer {
         }
     }
 
+    void tcp_server::stop()
+    {
+        evconnlistener_disable(listener_.get());
+        listener_.reset();
+
+        for(const auto &session : sessions_) {
+            session->stop();
+        }
+        event_base_loopbreak(eb_.get());
+        eb_.reset();
+    }
+
     void tcp_server::start_accept(evutil_socket_t socket, const std::string &client_addr)
     {
         logger_.info("New client connection was accepted, address: ", client_addr);

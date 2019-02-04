@@ -15,6 +15,7 @@ int main(int /*argc*/, char **/*argv */)
         };
         balancer::tcp_server server{8888, map};
         server.start();
+        server.stop();
     } catch (const std::exception &ex ) {
         std::cout << "Server failed with error: " << ex.what() << std::endl;
     } catch (...) {

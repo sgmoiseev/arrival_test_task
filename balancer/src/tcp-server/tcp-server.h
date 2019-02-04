@@ -14,6 +14,7 @@ namespace balancer {
     public:
         tcp_server(std::uint16_t port, const route_map &route_map);
         void start();
+        void stop();
 
     private:
         void start_accept(evutil_socket_t socket, const std::string &client_addr);
