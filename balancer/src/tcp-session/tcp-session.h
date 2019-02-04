@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../common.h"
 #include <common/src/types.h>
 #include <logger/src/logger.h>
 #include <proto/src/init-message.h>
@@ -22,8 +23,10 @@ namespace balancer {
         tcp_session(event_base *base,
                     evutil_socket_t socket,
                     close_op_t close_op,
+                    const route_map &route_map,
                     logger::logger &logger)
             : close_op_{close_op}
+            , route_map_{route_map}
             , buffer_{common::bufferevent_ptr(bufferevent_socket_new(base, socket, BEV_OPT_CLOSE_ON_FREE))}
             , logger_{logger}
         {}
@@ -64,7 +67,7 @@ namespace balancer {
             auto *buf_input{bufferevent_get_input(buffer_.get())};
             std::vector<std::uint8_t> data(proto::init_message::message_length());
             evbuffer_remove(buf_input, data.data(), data.size());
-            proto::init_message init_msg{std::string{data.begin(), data.end()}};
+            proto::init_message init_msg{std::string{data.cbegin(), data.cend()}};
             init_msg.load();
             logger_.info("We connected with client: ", init_msg.client_id());
         }
@@ -83,6 +86,7 @@ namespace balancer {
 
     private:
         close_op_t close_op_;
+        const route_map &route_map_;
         common::bufferevent_ptr buffer_;
         logger::logger &logger_;
     };

@@ -23,6 +23,7 @@ link_directories(
 
 file(GLOB SRC_LIST
     ./src/*.cpp
+    ./src/*.h
     ./src/tcp-server/*.h
     ./src/tcp-server/*.cpp
     ./src/tcp-session/*.h
