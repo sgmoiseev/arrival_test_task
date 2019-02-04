@@ -35,7 +35,7 @@ namespace balancer {
             logger_.info("Start new unknown session");
 
             const auto read_cd = [](bufferevent */*buffer*/, void *ctx) {
-                auto *self = static_cast<tcp_session *>(ctx);
+                auto *self{static_cast<tcp_session *>(ctx)};
                 self->read_init_message();
             };
 
@@ -61,7 +61,7 @@ namespace balancer {
     private:
         void read_init_message()
         {
-            evbuffer *buf_input = bufferevent_get_input(buffer_.get());
+            auto *buf_input{bufferevent_get_input(buffer_.get())};
             std::vector<std::uint8_t> data(proto::init_message::message_length());
             evbuffer_remove(buf_input, data.data(), data.size());
             proto::init_message init_msg{std::string{data.begin(), data.end()}};
