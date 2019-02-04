@@ -1,29 +1,12 @@
 #include "tcp-client.h"
 #include <common/src/types.h>
+#include <common/src/utils.h>
 #include <proto/src/init-message.h>
 #include <proto/src/regular-message.h>
 
-#include <cstring>
 #include <chrono>
-#include <string>
-#include <arpa/inet.h>
-#include <sys/socket.h>
 #include <cstdlib>
 #include <thread>
-
-namespace {
-
-    sockaddr_in fill_sockaddr(const std::string &host, std::uint16_t port)
-    {
-        sockaddr_in sin;
-        memset(&sin, 0, sizeof(sin));
-        sin.sin_family = AF_INET;
-        sin.sin_port = htons(port);
-        inet_pton(AF_INET, host.c_str(), &sin.sin_addr.s_addr);
-        return sin;
-    }
-
-}
 
 namespace tcp_client {
 
@@ -65,7 +48,7 @@ namespace tcp_client {
         const auto init_message{proto::make_init_message(client_id_)};
         write_message(bev, init_message.as_string());
 
-        const auto sock{fill_sockaddr(host_, port_)};
+        const auto sock{common::make_sockaddr(host_, port_)};
         const auto connect_result{
             bufferevent_socket_connect(bev, reinterpret_cast<const sockaddr *>(&sock), sizeof(sock))};
 

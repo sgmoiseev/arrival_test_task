@@ -20,6 +20,7 @@ include_directories(
 link_directories(
     ./../proto/lib/
     ./../logger/lib/
+    ./../common/lib/
 )
 
 include_directories(
@@ -43,4 +44,5 @@ target_link_libraries(
     log4cplus
     Proto
     Logger
+    Common
 )

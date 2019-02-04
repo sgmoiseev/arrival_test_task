@@ -18,6 +18,7 @@ include_directories(
 link_directories(
     ./../proto/lib/
     ./../logger/lib/
+    ./../common/lib/
 )
 
 file(GLOB SRC_LIST
@@ -39,4 +40,5 @@ target_link_libraries(
     log4cplus
     Proto
     Logger
+    Common
 )
