@@ -33,4 +33,9 @@ namespace proto {
         client_id_ = load_uint32();
     }
 
+    proto::init_message make_init_message(proto::init_message::client_id_t client_id)
+    {
+        return make_message<proto::init_message>(client_id);
+    }
+
 }

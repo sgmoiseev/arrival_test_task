@@ -34,4 +34,7 @@ namespace proto {
     private:
         payload_t payload_;
     };
+
+    proto::regular_message make_regular_message();
+
 }

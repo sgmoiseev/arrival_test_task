@@ -33,4 +33,10 @@ namespace proto {
         payload_ = load_uint32();
     }
 
+    proto::regular_message make_regular_message()
+    {
+        const auto rand_value{static_cast<std::uint32_t>(std::rand())};
+        return make_message<proto::regular_message>(rand_value);
+    }
+
 }

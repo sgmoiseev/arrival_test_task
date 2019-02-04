@@ -1,8 +1,6 @@
 #pragma once
 
 #include <logger/src/logger.h>
-#include <proto/src/init-message.h>
-#include <proto/src/regular-message.h>
 
 struct bufferevent;
 

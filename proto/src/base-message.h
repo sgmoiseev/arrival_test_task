@@ -44,4 +44,14 @@ namespace proto {
         std::string message_data_;
     };
 
+    template<typename msg_t,
+             typename = std::enable_if<std::is_base_of<msg_t, proto::base_message>::value>
+             >
+    msg_t make_message(std::uint32_t value)
+    {
+        msg_t msg{value};
+        msg.save();
+        return msg;
+    }
+
 }
