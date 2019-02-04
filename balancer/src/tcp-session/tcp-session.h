@@ -44,15 +44,24 @@ namespace balancer {
                 auto *self = static_cast<tcp_session*>(ctx);
                 self->read_init_message(buffer);
             };
+
+            const auto on_event = [](bufferevent */*bev*/, short what, void *ctx)
+            {
+                auto *self{static_cast<tcp_session *>(ctx)};
+                self->on_next_event(what);
+            };
+
             auto *buff{buffer_.get()};
-            bufferevent_setcb(buff, read_cd, nullptr, nullptr, this);
+            bufferevent_setcb(buff, read_cd, nullptr, on_event, this);
             bufferevent_setwatermark(buff, EV_READ, proto::init_message::message_length(), 0);
             bufferevent_enable(buff, EV_READ);
         }
 
         void stop() override
         {
-
+            bufferevent_disable(buffer_.get(), EV_READ);
+            buffer_.reset();
+            close_op_();
         }
 
     private:
@@ -64,6 +73,18 @@ namespace balancer {
             proto::init_message init_msg{std::string{data.begin(), data.end()}};
             init_msg.load();
             logger_.info("We connected with client: ", init_msg.client_id());
+        }
+
+        void on_next_event(short what)
+        {
+            if(what & BEV_EVENT_EOF) {
+                logger_.info("Client was disconnected");
+            }
+            if(what & BEV_EVENT_ERROR) {
+                logger_.error("An error occurred during a bufferevent operation");
+            }
+            logger_.info("Close session");
+            stop();
         }
 
     private:
