@@ -29,30 +29,47 @@ namespace balancer {
         check_null(listener_, "Can not create new listener");
 
         logger_.info("Start server");
-        if(-1 == event_base_dispatch(eb_.get())) {
-            throw std::runtime_error{"Can not run event loop"};
-        }
+        check_result_code(event_base_dispatch(eb_.get()), "Can not run event loop");
     }
 
     void tcp_server::stop()
     {
-        evconnlistener_disable(listener_.get());
-        listener_.reset();
+        if(listener_) {
+            evconnlistener_disable(listener_.get());
+            listener_.reset();
+        }
 
         for(const auto &session : sessions_) {
             session->stop();
         }
-        event_base_loopbreak(eb_.get());
-        eb_.reset();
+
+        if(eb_) {
+            event_base_loopbreak(eb_.get());
+            eb_.reset();
+        }
     }
 
     void tcp_server::start_accept(evutil_socket_t socket, const std::string &client_addr)
     {
-        logger_.info("New client connection was accepted, address: ", client_addr);
+        logger_.info("New client connection was accepted, client address: ", client_addr);
         const auto session_it{sessions_.emplace(sessions_.end())};
-        auto close_op{[this, session_it]() { sessions_.erase(session_it); }};
+        const auto close_op{[this, session_it]() { sessions_.erase(session_it); }};
         using session_t = tcp_session<decltype(close_op)>;
         *session_it = std::make_unique<session_t>(eb_.get(), socket, close_op, route_map_, logger_);
         (*session_it)->start();
+    }
+
+    void tcp_server::check_result_code(int result_code, const std::string &error_msg)
+    {
+        if(-1 == result_code) {
+            log_error_stop_and_throw(error_msg);
+        }
+    }
+
+    void tcp_server::log_error_stop_and_throw (const std::string &error_msg)
+    {
+        logger_.error(error_msg);
+        stop();
+        throw std::runtime_error{error_msg};
     }
 }
