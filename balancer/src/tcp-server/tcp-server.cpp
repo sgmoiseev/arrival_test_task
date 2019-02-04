@@ -13,7 +13,7 @@ namespace balancer {
 
         const sockaddr_in sin{common::make_sockaddr(INADDR_ANY, port_)};
 
-        auto accept_conn_cb{
+        const auto accept_conn_cb{
             [] (evconnlistener */*listener*/, evutil_socket_t socket, sockaddr *address, int /*socklen*/, void *ctx) {
                 auto self{static_cast<tcp_server*>(ctx)};
                 self->start_accept(socket, common::address_from_sockaddr(address));
