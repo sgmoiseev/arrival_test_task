@@ -28,7 +28,7 @@ namespace balancer {
         check_null(listener_, "Can not create new listener");
 
         logger_.info("Start server");
-        if(event_base_dispatch(eb_.get()) < 0) {
+        if(-1 == event_base_dispatch(eb_.get())) {
             throw std::runtime_error{"Can not run event loop"};
         }
     }
