@@ -27,9 +27,11 @@ namespace balancer {
     public:
         tcp_session(event_base *base,
                     evutil_socket_t socket,
-                    close_op_t close_op)
+                    close_op_t close_op,
+                    logger::logger &logger)
             : close_op_{close_op}
             , buffer_{bufferevent_ptr(bufferevent_socket_new(base, socket, BEV_OPT_CLOSE_ON_FREE), &bufferevent_free)}
+            , logger_{logger}
         {}
 
         ~tcp_session() = default;
@@ -67,6 +69,6 @@ namespace balancer {
     private:
         close_op_t close_op_;
         bufferevent_ptr buffer_;
-        logger::logger logger_{"tcp_session"};
+        logger::logger &logger_;
     };
 }
