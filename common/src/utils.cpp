@@ -23,7 +23,7 @@ namespace common {
         return inet_ntoa(addr_in->sin_addr);
     }
 
-    sockaddr_in make_sockaddr(std::uint32_t host, std::uint16_t port)
+    sockaddr_in make_sockaddr(in_addr_t host, std::uint16_t port)
     {
         sockaddr_in sin{make_sockaddr_with_port(port)};
         sin.sin_addr.s_addr = htonl(host);
