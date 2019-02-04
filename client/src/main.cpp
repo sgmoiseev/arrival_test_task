@@ -15,7 +15,7 @@ boost::program_options::variables_map parse_command_line(int argc, const char* c
         desc.add_options()
         ("help,h", "Help message")
         ("client,c", po::value<std::uint32_t>()->required(), "Client ID")
-        ("host,h", po::value<std::string>()->default_value("127.0.0.1"), "Host to connect")
+        ("host,h", po::value<std::string>()->default_value("example.com"), "Host to connect")
         ("port,p", po::value<std::uint16_t>()->default_value(8888), "Port to connect");
         po::store(po::parse_command_line(argc, argv, desc), vm);
         po::notify(vm);
