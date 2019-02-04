@@ -1,6 +1,7 @@
 #pragma once
 
 #include <logger/src/logger.h>
+#include <common/src/remote-server.h>
 
 struct bufferevent;
 
@@ -30,8 +31,7 @@ namespace tcp_client {
     private:
         logger::logger logger_;
         const std::uint32_t client_id_;
-        const std::string host_;
-        const std::uint16_t port_;
+        const common::remote_server r_server_;
         const std::uint32_t max_messages_count_{1000};
         std::uint32_t curr_message_number_{0};
     };

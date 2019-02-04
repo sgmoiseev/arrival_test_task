@@ -13,14 +13,13 @@ namespace tcp_client {
     tcp_client::tcp_client(std::uint32_t client_id, const std::string &host, std::uint16_t port)
         : logger_{"tcp_client"}
         , client_id_{client_id}
-        , host_{host}
-        , port_{port}
+        , r_server_{host, port}
     { }
 
     void tcp_client::start()
     {
         logger_.info("Start client with id: ", client_id_,
-                     ". Try to send messages to server: ", host_, ":", port_);
+                     ". Try to send messages to server: ", r_server_);
 
         auto eb{common::event_base_ptr(event_base_new())};
         check_null(eb, "Can not create new event_base");
@@ -48,7 +47,7 @@ namespace tcp_client {
         const auto init_message{proto::make_init_message(client_id_)};
         write_message(bev, init_message.as_string());
 
-        const auto sock{common::make_sockaddr(host_, port_)};
+        const auto sock{r_server_.sockaddr()};
         const auto connect_result{
             bufferevent_socket_connect(bev, reinterpret_cast<const sockaddr *>(&sock), sizeof(sock))};
 
