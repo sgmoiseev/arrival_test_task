@@ -35,7 +35,7 @@ namespace balancer {
 
     void tcp_server::start_accept(evutil_socket_t socket, const std::string &client_addr)
     {
-        logger_.info("New client connection was accepted, address", client_addr);
+        logger_.info("New client connection was accepted, address: ", client_addr);
         const auto session_it = sessions_.emplace(sessions_.end());
         auto close_op = [this, session_it]() { sessions_.erase(session_it); };
         using session_t = tcp_session<decltype(close_op)>;
