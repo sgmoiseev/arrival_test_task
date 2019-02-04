@@ -4,8 +4,7 @@
 #include <proto/src/init-message.h>
 #include <proto/src/regular-message.h>
 
-#include <event2/event.h>
-#include <event2/bufferevent.h>
+struct bufferevent;
 
 namespace tcp_client {
 
