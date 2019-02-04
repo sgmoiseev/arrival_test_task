@@ -1,10 +1,12 @@
 #include "common.h"
 #include "tcp-server/tcp-server.h"
 
+#include <signal.h>
 #include <iostream>
 
 int main(int /*argc*/, char **/*argv */)
 {
+    signal(SIGPIPE, SIG_IGN);
     try {
         balancer::route_map map{
             {1, common::remote_server{"n1.example.com", 7777}},
