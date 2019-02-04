@@ -13,9 +13,8 @@ TEST(regular_message, RegularMessagePrefix)
 
 TEST(regular_message, SaveToAndLoadFromStream)
 {
-    regular_message msg{1024};
-    msg.save();
-    regular_message new_msg{msg.as_string()};
+    const auto msg{make_message<regular_message>(1024)};
+    regular_message new_msg{msg.as_bytes()};
     new_msg.load();
     ASSERT_EQ(msg.payload(), new_msg.payload());
 }

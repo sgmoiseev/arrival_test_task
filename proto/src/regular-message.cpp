@@ -9,7 +9,7 @@ namespace proto {
         , payload_{payload}
     { }
 
-    regular_message::regular_message(const std::string &data)
+    regular_message::regular_message(const bytes &data)
         : base_message(data)
     { }
 

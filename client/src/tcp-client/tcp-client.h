@@ -1,7 +1,8 @@
 #pragma once
 
-#include <logger/src/logger.h>
 #include <common/src/remote-server.h>
+#include <logger/src/logger.h>
+#include <proto/src/base-message.h>
 
 struct bufferevent;
 
@@ -13,7 +14,7 @@ namespace tcp_client {
         void start();
 
     private:
-        void write_message(bufferevent *bev, const std::string &msg);
+        void write_message(bufferevent *bev, const proto::bytes &msg);
         void on_ready_write(bufferevent *bev);
         void on_next_event(short what);
 

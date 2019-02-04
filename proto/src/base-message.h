@@ -1,9 +1,12 @@
 #pragma once
 
+#include <vector>
 #include <string>
-#include <sstream>
 
 namespace proto {
+
+    using byte = std::uint8_t;
+    using bytes = std::vector<byte>;
 
     enum class message_type : std::uint32_t {
         init = 0,
@@ -20,7 +23,7 @@ namespace proto {
     class base_message {
     public:
         explicit base_message(message_type type);
-        explicit base_message(const std::string &data);
+        explicit base_message(const bytes &data);
         base_message(base_message &&rhs) = default;
         virtual ~base_message() = default;
 
@@ -31,19 +34,20 @@ namespace proto {
     public:
         void save();
         void load();
-        std::string as_string() const;
-        const std::string &row_data() const noexcept;
+        const bytes &as_bytes() const noexcept;
 
     protected:
         void save_uint32(std::uint32_t value);
         std::uint32_t load_uint32();
 
     private:
+        void save_message_prefix();
+
+    private:
         message_type type_;
         const static std::string message_prefix_;
-        std::stringstream message_stream_;
-        std::string message_data_;
-        const std::string message_row_data_;
+        bytes message_data_;
+        bytes::const_iterator read_pos_;
     };
 
     template<typename msg_t,

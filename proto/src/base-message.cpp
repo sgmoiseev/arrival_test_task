@@ -1,6 +1,7 @@
 #include "base-message.h"
 
 #include <arpa/inet.h>
+#include <stdexcept>
 
 namespace proto {
 
@@ -10,14 +11,15 @@ namespace proto {
         : type_{type}
     { }
 
-    base_message::base_message(const std::string &data)
-        : message_data_{data.substr(message_prefix_.size())}
-        , message_row_data_{data}
+    base_message::base_message(const bytes &data)
+        : message_data_{data}
+        , read_pos_{std::next(message_data_.cbegin(),
+                              static_cast<bytes::difference_type>(message_prefix_.size()))}
     { }
 
     void base_message::save()
     {
-        message_stream_ << message_prefix_;
+        save_message_prefix();
         save_uint32(static_cast<std::uint32_t>(type_));
     }
 
@@ -26,14 +28,9 @@ namespace proto {
         type_ = static_cast<message_type>(load_uint32());
     }
 
-    std::string base_message::as_string() const
+    const bytes &base_message::as_bytes() const noexcept
     {
-        return message_stream_.str();
-    }
-
-    const std::string &base_message::row_data() const noexcept
-    {
-        return message_row_data_;
+        return message_data_;
     }
 
     message_type base_message::type() const noexcept
@@ -49,19 +46,28 @@ namespace proto {
     void base_message::save_uint32(std::uint32_t value)
     {
         const std::uint32_t be_value{htonl(value)};
-        message_stream_ << std::string(reinterpret_cast<const char *>(&be_value),
-                                       sizeof(be_value));
+        message_data_.reserve(message_data_.size() + sizeof(be_value));
+        const auto *start_pos{reinterpret_cast<const char *>(&be_value)};
+        std::copy(start_pos, start_pos + sizeof(be_value), std::back_inserter(message_data_));
     }
 
     std::uint32_t base_message::load_uint32()
     {
-        if(message_data_.size() < sizeof(std::uint32_t)) {
+        const auto dist{std::distance(read_pos_, message_data_.cend())};
+        const auto uint32_diff_size{static_cast<bytes::difference_type>(sizeof(std::uint32_t))};
+        if(dist < uint32_diff_size) {
             throw std::runtime_error{"Can not read uint32: too little data"};
         }
-        const std::uint32_t *value_ptr{reinterpret_cast<const std::uint32_t *>(message_data_.data())};
+        const std::uint32_t *value_ptr{reinterpret_cast<const std::uint32_t *>(&(*read_pos_))};
         const std::uint32_t value{ntohl(*value_ptr)};
-        message_data_.erase(0, sizeof(std::uint32_t));
+        std::advance(read_pos_, sizeof(std::uint32_t));
         return value;
+    }
+
+    void base_message::save_message_prefix()
+    {
+        message_data_.reserve(message_prefix_.size());
+        std::copy(message_prefix_.cbegin(), message_prefix_.cend(), std::back_inserter(message_data_));
     }
 
 }

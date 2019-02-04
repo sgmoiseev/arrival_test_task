@@ -29,8 +29,12 @@ TEST(base_message, SaveToStream)
         base_message msg{type};
         msg.save();
         const std::uint32_t type_value{htonl(static_cast<std::uint32_t>(type))};
-        const std::string  type_str{reinterpret_cast<const char *>(&type_value), sizeof (type_value)};
-        EXPECT_EQ(prefix + type_str, msg.as_string());
+        const auto *start_pos{reinterpret_cast<const byte *>(&type_value)};
+        bytes expected_bytes;
+        expected_bytes.reserve(prefix.size() + sizeof(message_type));
+        std::copy(prefix.cbegin(), prefix.cend(), std::back_inserter(expected_bytes));
+        std::copy(start_pos, start_pos + sizeof(message_type), std::back_inserter(expected_bytes));
+        EXPECT_EQ(expected_bytes, msg.as_bytes());
     });
 }
 
@@ -39,9 +43,15 @@ TEST(base_message, LoadFromStream)
     foreach_message_type([](message_type type){
         base_message msg{type};
         msg.save();
-        std::string tmp{msg.as_string()};
-        base_message new_msg{msg.as_string()};
+        base_message new_msg{msg.as_bytes()};
         new_msg.load();
         EXPECT_EQ(type, new_msg.type());
     });
+}
+
+TEST(base_message, LoadFromInvalidStream)
+{
+    bytes bytes{1,2,3,4};
+    base_message msg{bytes};
+    EXPECT_THROW(msg.load(), std::runtime_error);
 }

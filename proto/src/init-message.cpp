@@ -7,7 +7,7 @@ namespace proto {
         , client_id_{client_id}
     { }
 
-    init_message::init_message(const std::string &data)
+    init_message::init_message(const bytes &data)
         : base_message(data)
     { }
 

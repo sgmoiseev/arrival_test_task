@@ -122,10 +122,10 @@ namespace balancer {
         {
             const auto msg{read_message<proto::regular_message>()};
             logger_.info("Message with payload '", msg.payload() ,"' has been received");
-            write_regular_message(msg.row_data());
+            write_regular_message(msg.as_bytes());
         }
 
-        void write_regular_message(const std::string &msg)
+        void write_regular_message(const proto::bytes &msg)
         {
             bufferevent_write(server_buffer_.get(), msg.data(), msg.size());
         }
@@ -151,9 +151,9 @@ namespace balancer {
         template<typename msg_t>
         msg_t read_message()
         {
-            std::vector<std::uint8_t> data(msg_t::message_length());
-            bufferevent_read(client_buffer_.get(), data.data(), data.size());
-            msg_t msg{std::string(data.cbegin(), data.cend())};
+            proto::bytes bytes(msg_t::message_length());
+            bufferevent_read(client_buffer_.get(), bytes.data(), bytes.size());
+            msg_t msg{bytes};
             msg.load();
             return msg;
         }

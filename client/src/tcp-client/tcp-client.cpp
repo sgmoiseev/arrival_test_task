@@ -45,7 +45,7 @@ namespace tcp_client {
                                    "Can not enable bufferevent for writing");
 
         const auto init_message{proto::make_init_message(client_id_)};
-        write_message(bev, init_message.as_string());
+        write_message(bev, init_message.as_bytes());
 
         const auto sock{r_server_.sockaddr()};
         const auto connect_result{
@@ -55,7 +55,7 @@ namespace tcp_client {
         check_libevent_result_code(event_base_dispatch(eb.get()), "Can not run event loop");
     }
 
-    void tcp_client::write_message(bufferevent *bev, const std::string &msg)
+    void tcp_client::write_message(bufferevent *bev, const proto::bytes &msg)
     {
         const auto bev_write_result{bufferevent_write(bev, msg.data(), msg.size())};
         check_libevent_result_code(bev_write_result, "Can not write message to bufferevent");
@@ -66,7 +66,7 @@ namespace tcp_client {
         const auto regular_message{proto::make_regular_message()};
         logger_.info("Send next message: ", curr_message_number_,
                      " with value: ", regular_message.payload());
-        write_message(bev, regular_message.as_string());
+        write_message(bev, regular_message.as_bytes());
         if(++curr_message_number_ < max_messages_count_) {
             using namespace std::chrono_literals;
             std::this_thread::sleep_for(1s);

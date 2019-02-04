@@ -13,9 +13,8 @@ TEST(init_message, InitMessagePrefix)
 
 TEST(init_message, SaveToAndLoadFromStream)
 {
-    init_message msg{1024};
-    msg.save();
-    init_message new_msg{msg.as_string()};
+    const auto msg{make_message<init_message>(1024)};
+    init_message new_msg{msg.as_bytes()};
     new_msg.load();
     ASSERT_EQ(msg.client_id(), new_msg.client_id());
 }
