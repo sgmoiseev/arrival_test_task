@@ -1,5 +1,7 @@
 #include "regular-message.h"
 
+#include <ctime>
+
 namespace proto {
 
     regular_message::regular_message(payload_t payload)
@@ -35,6 +37,7 @@ namespace proto {
 
     proto::regular_message make_regular_message()
     {
+        std::srand(static_cast<std::uint32_t>(std::time(nullptr)));
         const auto rand_value{static_cast<std::uint32_t>(std::rand())};
         return make_message<proto::regular_message>(rand_value);
     }
