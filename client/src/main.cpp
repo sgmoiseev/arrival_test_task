@@ -47,7 +47,7 @@ int main(int argc, char **argv)
         tcp_client::tcp_client client{client_id, host, port, max_msg};
         client.start();
         client.stop();
-    } catch (const std::exception &ex ) {
+    } catch (const std::exception &ex) {
         std::cerr << "Client failed with error: " << ex.what() << std::endl;
     } catch (...) {
         std::cerr << "Client failed with unknown error" << std::endl;
