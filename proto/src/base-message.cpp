@@ -5,7 +5,7 @@
 
 namespace {
 
-    const std::string message_prefix{"msg#"};
+    const std::string prefix{"msg#"};
 
 }
 
@@ -16,9 +16,8 @@ namespace proto {
     { }
 
     base_message::base_message(const bytes &data)
-        : message_data_{data}
-        , read_pos_{std::next(message_data_.cbegin(),
-                              static_cast<bytes::difference_type>(message_prefix.size()))}
+        : data_{data}
+        , read_pos_{std::next(data_.cbegin(), static_cast<bytes::difference_type>(prefix.size()))}
     { }
 
     void base_message::save()
@@ -34,7 +33,7 @@ namespace proto {
 
     const bytes &base_message::as_bytes() const noexcept
     {
-        return message_data_;
+        return data_;
     }
 
     message_type base_message::type() const noexcept
@@ -44,20 +43,20 @@ namespace proto {
 
     std::size_t base_message::message_length() noexcept
     {
-        return message_prefix.size() + sizeof(message_type);
+        return prefix.size() + sizeof(message_type);
     }
 
     void base_message::save_uint32(std::uint32_t value)
     {
         const std::uint32_t be_value{htonl(value)};
-        message_data_.reserve(message_data_.size() + sizeof(std::uint32_t));
+        data_.reserve(data_.size() + sizeof(std::uint32_t));
         const auto *start_pos{reinterpret_cast<const char *>(&be_value)};
-        std::copy(start_pos, start_pos + sizeof(std::uint32_t), std::back_inserter(message_data_));
+        std::copy(start_pos, start_pos + sizeof(std::uint32_t), std::back_inserter(data_));
     }
 
     std::uint32_t base_message::load_uint32()
     {
-        const auto dist{std::distance(read_pos_, message_data_.cend())};
+        const auto dist{std::distance(read_pos_, data_.cend())};
         const auto uint32_diff_size{static_cast<bytes::difference_type>(sizeof(std::uint32_t))};
         if(dist < uint32_diff_size) {
             throw std::runtime_error{"Can not read uint32: too little data"};
@@ -70,8 +69,8 @@ namespace proto {
 
     void base_message::save_message_prefix()
     {
-        message_data_.reserve(message_prefix.size());
-        std::copy(message_prefix.cbegin(), message_prefix.cend(), std::back_inserter(message_data_));
+        data_.reserve(prefix.size());
+        std::copy(prefix.cbegin(), prefix.cend(), std::back_inserter(data_));
     }
 
 }
