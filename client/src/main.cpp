@@ -22,7 +22,7 @@ boost::program_options::variables_map parse_command_line(int argc, const char* c
         po::notify(vm);
     } catch (const po::required_option &ex) {
         if(vm.count("help")) {
-            std::cout << desc << "\n" <<std::endl;
+            std::cout << desc << "\n" << std::endl;
         } else {
             throw ex;
         }
@@ -46,10 +46,11 @@ int main(int argc, char **argv)
 
         tcp_client::tcp_client client{client_id, host, port, max_msg};
         client.start();
+        client.stop();
     } catch (const std::exception &ex ) {
-        std::cout << "Client failed with error: " << ex.what() << std::endl;
+        std::cerr << "Client failed with error: " << ex.what() << std::endl;
     } catch (...) {
-        std::cout << "Client failed with unknown error" << std::endl;
+        std::cerr << "Client failed with unknown error" << std::endl;
     }
     return 0;
 }

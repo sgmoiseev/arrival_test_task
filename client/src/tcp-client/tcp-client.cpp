@@ -47,11 +47,17 @@ namespace tcp_client {
         const auto init_message{proto::make_init_message(client_id_)};
         write_message(init_message.as_bytes());
 
-        const auto sock{r_server_.sockaddr()};
+        sockaddr_in sock;
+        try {
+            sock = r_server_.sockaddr();
+        } catch (const std::exception &ex) {
+            log_error_stop_and_throw(ex.what());
+        }
+
         const auto connect_result{
             bufferevent_socket_connect(bev, reinterpret_cast<const sockaddr *>(&sock), sizeof(sock))};
 
-        check_result_code(connect_result, "Can not connect to server");
+        check_result_code(connect_result, "Can not start connection procedure to server");
         check_result_code(event_base_dispatch(eb_.get()), "Can not run event loop");
     }
 
@@ -93,7 +99,7 @@ namespace tcp_client {
     void tcp_client::on_next_event(short what)
     {
         if(what & BEV_EVENT_ERROR) {
-            logger_.error("Some error from bufferevent");
+            logger_.error("Some error from bufferevent. Stop client.");
             stop();
         }
         if(what & BEV_EVENT_CONNECTED) {
