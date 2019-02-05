@@ -50,9 +50,9 @@ namespace proto {
     void base_message::save_uint32(std::uint32_t value)
     {
         const std::uint32_t be_value{htonl(value)};
-        message_data_.reserve(message_data_.size() + sizeof(be_value));
+        message_data_.reserve(message_data_.size() + sizeof(std::uint32_t));
         const auto *start_pos{reinterpret_cast<const char *>(&be_value)};
-        std::copy(start_pos, start_pos + sizeof(be_value), std::back_inserter(message_data_));
+        std::copy(start_pos, start_pos + sizeof(std::uint32_t), std::back_inserter(message_data_));
     }
 
     std::uint32_t base_message::load_uint32()
