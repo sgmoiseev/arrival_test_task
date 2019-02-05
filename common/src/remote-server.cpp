@@ -26,11 +26,11 @@ namespace common {
 
     std::string remote_server::resolve_host_by_name() const
     {
-        hostent *he{gethostbyname(host_.c_str())};
+        const hostent *he{gethostbyname(host_.c_str())};
         if (nullptr == he) {
             throw std::invalid_argument{"Can not get host by name: " + host_};
         }
-        auto addr_list{reinterpret_cast<in_addr **>(he->h_addr_list)};
+        const auto addr_list{reinterpret_cast<in_addr **>(he->h_addr_list)};
         return inet_ntoa(*addr_list[0]);
     }
 
