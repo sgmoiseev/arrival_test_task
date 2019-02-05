@@ -205,4 +205,5 @@ namespace balancer {
         common::bufferevent_ptr server_buffer_;
         logger::logger &logger_;
     };
+
 }
