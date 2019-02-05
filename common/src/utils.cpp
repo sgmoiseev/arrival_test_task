@@ -17,9 +17,9 @@ namespace {
 
 namespace common {
 
-    std::string address_from_sockaddr(sockaddr *address)
+    std::string address_from_sockaddr(const sockaddr *address)
     {
-        const auto *addr_in{reinterpret_cast<sockaddr_in *>(address)};
+        const auto *addr_in{reinterpret_cast<const sockaddr_in *>(address)};
         return inet_ntoa(addr_in->sin_addr);
     }
 

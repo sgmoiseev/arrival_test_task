@@ -5,7 +5,7 @@
 
 namespace common {
 
-    std::string address_from_sockaddr(sockaddr *address);
+    std::string address_from_sockaddr(const sockaddr *address);
 
     sockaddr_in make_sockaddr(in_addr_t host, std::uint16_t port);
 
