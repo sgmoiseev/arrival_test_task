@@ -19,4 +19,9 @@ TEST(init_message, SaveToAndLoadFromStream)
     ASSERT_EQ(msg.client_id(), new_msg.client_id());
 }
 
-
+TEST(init_message, LoadFromInvalidStream)
+{
+    const bytes data(base_message::message_length() + 1);
+    init_message msg{data};
+    EXPECT_THROW(msg.load(), std::runtime_error);
+}

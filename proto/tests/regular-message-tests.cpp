@@ -19,4 +19,9 @@ TEST(regular_message, SaveToAndLoadFromStream)
     ASSERT_EQ(msg.payload(), new_msg.payload());
 }
 
-
+TEST(regular_message, LoadFromInvalidStream)
+{
+    const bytes data(base_message::message_length() + 1);
+    regular_message msg{data};
+    EXPECT_THROW(msg.load(), std::runtime_error);
+}
