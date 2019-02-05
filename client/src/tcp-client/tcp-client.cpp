@@ -98,7 +98,7 @@ namespace tcp_client {
     void tcp_client::on_next_event(short what)
     {
         if(what & BEV_EVENT_ERROR) {
-            logger_.error("Some error from bufferevent. Stop client.");
+            logger_.error("Some error from bufferevent. Stop client");
             stop();
         }
         if(what & BEV_EVENT_CONNECTED) {
