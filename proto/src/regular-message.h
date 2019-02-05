@@ -5,7 +5,7 @@
 namespace proto {
 
     /*
-     * init_message
+     * regular_message
      * |*****base_message*****|*****payload:uint32*****|
      * |                                               |
      * |----------------message_length-----------------|
