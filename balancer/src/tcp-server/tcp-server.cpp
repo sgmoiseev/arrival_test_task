@@ -2,17 +2,18 @@
 #include <common/src/utils.h>
 
 namespace balancer {
+
     tcp_server::tcp_server(std::uint16_t port, const route_map &route_map)
         : port_{port}
         , route_map_{route_map}
-    {}
+    { }
 
     void tcp_server::start()
     {
         eb_ = common::event_base_ptr(event_base_new());
         check_null(eb_, "Can not create new event_base");
 
-        const sockaddr_in sin{common::make_sockaddr(INADDR_ANY, port_)};
+        const sockaddr_in sock{common::make_sockaddr(INADDR_ANY, port_)};
 
         const auto accept_conn_cb{
             [] (evconnlistener */*listener*/, evutil_socket_t socket, sockaddr *address, int /*socklen*/, void *ctx) {
@@ -24,7 +25,7 @@ namespace balancer {
         const auto listener_options{LEV_OPT_CLOSE_ON_FREE|LEV_OPT_REUSEABLE};
         listener_ = common::listener_ptr(
                     evconnlistener_new_bind(eb_.get(), accept_conn_cb, this, listener_options,
-                                            -1, reinterpret_cast<const sockaddr*>(&sin), sizeof(sin))
+                                            -1, reinterpret_cast<const sockaddr*>(&sock), sizeof(sock))
                     );
         check_null(listener_, "Can not create new listener");
 
@@ -72,4 +73,5 @@ namespace balancer {
         stop();
         throw std::runtime_error{error_msg};
     }
+
 }
