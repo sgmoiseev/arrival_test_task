@@ -21,7 +21,6 @@ namespace proto {
         explicit regular_message(payload_t payload);
         explicit regular_message(const bytes &data);
         regular_message(regular_message &&rhs) = default;
-        ~regular_message() override = default;
 
     public:
         payload_t payload() const noexcept;

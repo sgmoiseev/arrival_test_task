@@ -25,7 +25,6 @@ namespace proto {
         explicit base_message(message_type type);
         explicit base_message(const bytes &data);
         base_message(base_message &&rhs) = default;
-        virtual ~base_message() = default;
 
     public:
         message_type type() const noexcept;

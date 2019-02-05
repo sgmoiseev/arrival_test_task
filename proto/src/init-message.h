@@ -21,15 +21,14 @@ namespace proto {
         explicit init_message(client_id_t clietn_id);
         explicit init_message(const bytes &data);
         init_message(init_message &&rhs) = default;
-        ~init_message() override = default;
 
     public:
         client_id_t client_id() const noexcept;
         static std::size_t message_length() noexcept;
 
     public:
-        virtual void save();
-        virtual void load();
+        void save();
+        void load();
 
     private:
         client_id_t client_id_;
