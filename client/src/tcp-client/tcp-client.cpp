@@ -1,5 +1,4 @@
 #include "tcp-client.h"
-#include <common/src/types.h>
 #include <common/src/utils.h>
 #include <proto/src/init-message.h>
 #include <proto/src/regular-message.h>
@@ -23,16 +22,16 @@ namespace tcp_client {
         logger_.info("Start client with id: ", client_id_,
                      ". Try to send messages to server: ", r_server_);
 
-        auto eb{common::event_base_ptr(event_base_new())};
-        check_null(eb, "Can not create new event_base");
+        eb_ = common::event_base_ptr(event_base_new());
+        check_null(eb_, "Can not create new event_base");
 
-        auto buffer{common::bufferevent_ptr(bufferevent_socket_new(eb.get(), -1, BEV_OPT_CLOSE_ON_FREE))};
-        check_null(eb, "Can not create new bufferevent");
+        buffer_ = common::bufferevent_ptr(bufferevent_socket_new(eb_.get(), -1, BEV_OPT_CLOSE_ON_FREE));
+        check_null(buffer_, "Can not create new bufferevent");
 
-        const auto on_write = [](bufferevent *bev, void *ctx)
+        const auto on_write = [](bufferevent */*bev*/, void *ctx)
         {
             auto *self{static_cast<tcp_client *>(ctx)};
-            self->on_ready_write(bev);
+            self->on_ready_write();
         };
 
         const auto on_event = [](bufferevent */*bev*/, short what, void *ctx)
@@ -41,12 +40,12 @@ namespace tcp_client {
             self->on_next_event(what);
         };
 
-        auto *bev{buffer.get()};
+        auto *bev{buffer_.get()};
         bufferevent_setcb(bev, nullptr, on_write, on_event, this);
         check_result_code(bufferevent_enable(bev, EV_WRITE), "Can not enable bufferevent for writing");
 
         const auto init_message{proto::make_init_message(client_id_)};
-        write_message(bev, init_message.as_bytes());
+        write_message(init_message.as_bytes());
 
         const auto sock{r_server_.sockaddr()};
         const auto connect_result{
@@ -56,24 +55,38 @@ namespace tcp_client {
         check_result_code(event_base_dispatch(eb_.get()), "Can not run event loop");
     }
 
-    void tcp_client::write_message(bufferevent *bev, const proto::bytes &msg)
+    void tcp_client::stop()
     {
-        const auto bev_write_result{bufferevent_write(bev, msg.data(), msg.size())};
-        check_result_code(bev_write_result, "Can not write message to bufferevent");
+        if(buffer_) {
+            bufferevent_disable(buffer_.get(), EV_WRITE);
+            buffer_.reset();
+        }
+
+        if(eb_) {
+            event_base_loopbreak(eb_.get());
+            eb_.reset();
+        }
     }
 
-    void tcp_client::on_ready_write(bufferevent *bev)
+    void tcp_client::write_message(const proto::bytes &msg)
     {
-        const auto regular_message{proto::make_regular_message()};
-        logger_.info("Send next message: ", curr_message_number_,
-                     " with value: ", regular_message.payload());
-        write_message(bev, regular_message.as_bytes());
-        if(++curr_message_number_ < max_messages_count_) {
+        const auto write_result{bufferevent_write(buffer_.get(), msg.data(), msg.size())};
+        check_result_code(write_result, "Can not write message to bufferevent");
+    }
+
+    void tcp_client::on_ready_write()
+    {
+        if(curr_msg_number_++ < max_msg_count_) {
+            const auto regular_msg{proto::make_regular_message()};
+            logger_.info("Send next message: ", curr_msg_number_, " with payload: ", regular_msg.payload());
+            write_message(regular_msg.as_bytes());
             using namespace std::chrono_literals;
             std::this_thread::sleep_for(1s);
         } else {
-            logger_.info("Last message was sent");
-            check_result_code(bufferevent_disable(bev, EV_WRITE), "Can not disable bufferevent");
+            if(is_server_finished_read()) {
+                logger_.info("Last message was sent");
+                stop();
+            }
         }
     }
 
@@ -81,19 +94,30 @@ namespace tcp_client {
     {
         if(what & BEV_EVENT_ERROR) {
             logger_.error("Some error from bufferevent");
+            stop();
         }
+        if(what & BEV_EVENT_CONNECTED) {
+            logger_.info("Connected to to server: ", r_server_);
+        }
+    }
+
+    bool tcp_client::is_server_finished_read() const noexcept
+    {
+        const auto evbuff{bufferevent_get_output(buffer_.get())};
+        return 0 == evbuffer_get_length(evbuff);
     }
 
     void tcp_client::check_result_code(int result_code, const std::string &error_msg)
     {
         if(-1 == result_code) {
-            log_error_and_throw(error_msg);
+            log_error_stop_and_throw(error_msg);
         }
     }
 
-    void tcp_client::log_error_and_throw(const std::string &error_msg)
+    void tcp_client::log_error_stop_and_throw (const std::string &error_msg)
     {
         logger_.error(error_msg);
+        stop();
         throw std::runtime_error{error_msg};
     }
 }
