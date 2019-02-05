@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <common/src/types.h>
 #include <common/src/remote-server.h>
 #include <logger/src/logger.h>

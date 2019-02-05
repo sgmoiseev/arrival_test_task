@@ -4,7 +4,6 @@
 #include <proto/src/regular-message.h>
 
 #include <chrono>
-#include <cstdlib>
 #include <thread>
 
 namespace tcp_client {
@@ -126,4 +125,5 @@ namespace tcp_client {
         stop();
         throw std::runtime_error{error_msg};
     }
+
 }
