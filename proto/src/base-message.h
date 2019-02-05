@@ -44,7 +44,6 @@ namespace proto {
 
     private:
         message_type type_;
-        const static std::string message_prefix_;
         bytes message_data_;
         bytes::const_iterator read_pos_;
     };

@@ -3,9 +3,13 @@
 #include <arpa/inet.h>
 #include <stdexcept>
 
-namespace proto {
+namespace {
 
-    const std::string base_message::message_prefix_{"msg#"};
+    const std::string message_prefix{"msg#"};
+
+}
+
+namespace proto {
 
     base_message::base_message(message_type type)
         : type_{type}
@@ -14,7 +18,7 @@ namespace proto {
     base_message::base_message(const bytes &data)
         : message_data_{data}
         , read_pos_{std::next(message_data_.cbegin(),
-                              static_cast<bytes::difference_type>(message_prefix_.size()))}
+                              static_cast<bytes::difference_type>(message_prefix.size()))}
     { }
 
     void base_message::save()
@@ -40,7 +44,7 @@ namespace proto {
 
     std::size_t base_message::message_length() noexcept
     {
-        return message_prefix_.size() + sizeof(message_type);
+        return message_prefix.size() + sizeof(message_type);
     }
 
     void base_message::save_uint32(std::uint32_t value)
@@ -66,8 +70,8 @@ namespace proto {
 
     void base_message::save_message_prefix()
     {
-        message_data_.reserve(message_prefix_.size());
-        std::copy(message_prefix_.cbegin(), message_prefix_.cend(), std::back_inserter(message_data_));
+        message_data_.reserve(message_prefix.size());
+        std::copy(message_prefix.cbegin(), message_prefix.cend(), std::back_inserter(message_data_));
     }
 
 }
