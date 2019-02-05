@@ -97,7 +97,7 @@ namespace tcp_client {
             stop();
         }
         if(what & BEV_EVENT_CONNECTED) {
-            logger_.info("Connected to to server: ", r_server_);
+            logger_.info("Connected to server: ", r_server_);
         }
     }
 
