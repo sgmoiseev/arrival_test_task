@@ -13,10 +13,6 @@ FIND_PACKAGE(Boost REQUIRED COMPONENTS program_options)
 
 set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_PATH})
 
-include_directories(
-    ./../
-)
-
 link_directories(
     ./../proto/lib/
     ./../logger/lib/
@@ -25,6 +21,7 @@ link_directories(
 
 include_directories(
     ${Boost_INCLUDE_DIRS}
+    ./../
 )
 
 file(GLOB SRC_LIST
