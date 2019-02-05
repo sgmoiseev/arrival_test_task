@@ -41,8 +41,7 @@ namespace tcp_client {
 
         auto *bev{buffer.get()};
         bufferevent_setcb(bev, nullptr, on_write, on_event, this);
-        check_libevent_result_code(bufferevent_enable(bev, EV_WRITE),
-                                   "Can not enable bufferevent for writing");
+        check_result_code(bufferevent_enable(bev, EV_WRITE), "Can not enable bufferevent for writing");
 
         const auto init_message{proto::make_init_message(client_id_)};
         write_message(bev, init_message.as_bytes());
@@ -51,14 +50,14 @@ namespace tcp_client {
         const auto connect_result{
             bufferevent_socket_connect(bev, reinterpret_cast<const sockaddr *>(&sock), sizeof(sock))};
 
-        check_libevent_result_code(connect_result, "Can not connect to server");
-        check_libevent_result_code(event_base_dispatch(eb.get()), "Can not run event loop");
+        check_result_code(connect_result, "Can not connect to server");
+        check_result_code(event_base_dispatch(eb_.get()), "Can not run event loop");
     }
 
     void tcp_client::write_message(bufferevent *bev, const proto::bytes &msg)
     {
         const auto bev_write_result{bufferevent_write(bev, msg.data(), msg.size())};
-        check_libevent_result_code(bev_write_result, "Can not write message to bufferevent");
+        check_result_code(bev_write_result, "Can not write message to bufferevent");
     }
 
     void tcp_client::on_ready_write(bufferevent *bev)
@@ -72,8 +71,7 @@ namespace tcp_client {
             std::this_thread::sleep_for(1s);
         } else {
             logger_.info("Last message was sent");
-            check_libevent_result_code(bufferevent_disable(bev, EV_WRITE),
-                                       "Can not disable bufferevent");
+            check_result_code(bufferevent_disable(bev, EV_WRITE), "Can not disable bufferevent");
         }
     }
 
@@ -84,7 +82,7 @@ namespace tcp_client {
         }
     }
 
-    void tcp_client::check_libevent_result_code(int result_code, const std::string &error_msg)
+    void tcp_client::check_result_code(int result_code, const std::string &error_msg)
     {
         if(-1 == result_code) {
             log_error_and_throw(error_msg);

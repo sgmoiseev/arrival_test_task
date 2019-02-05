@@ -26,7 +26,7 @@ namespace tcp_client {
             }
         }
 
-        void check_libevent_result_code(int result_code, const std::string &error_msg);
+        void check_result_code(int result_code, const std::string &error_msg);
         void log_error_and_throw(const std::string &error_msg);
 
     private:
