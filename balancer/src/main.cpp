@@ -66,7 +66,7 @@ int main(int argc, char **argv)
         balancer::tcp_server server{8888, route_map};
         server.start();
         server.stop();
-    } catch (const std::exception &ex ) {
+    } catch (const std::exception &ex) {
         std::cout << "Server failed with error: " << ex.what() << std::endl;
     } catch (...) {
         std::cout << "Server failed with unknown error" << std::endl;
