@@ -10,10 +10,12 @@
 
 namespace tcp_client {
 
-    tcp_client::tcp_client(std::uint32_t client_id, const std::string &host, std::uint16_t port)
+    tcp_client::tcp_client(std::uint32_t client_id, const std::string &host,
+                           std::uint16_t port, std::uint32_t max_msg_count)
         : logger_{"tcp_client"}
         , client_id_{client_id}
         , r_server_{host, port}
+        , max_msg_count_{max_msg_count}
     { }
 
     void tcp_client::start()

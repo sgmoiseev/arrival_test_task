@@ -10,7 +10,8 @@ namespace tcp_client {
 
     class tcp_client {
     public:
-        tcp_client(std::uint32_t client_id, const std::string &host, std::uint16_t port);
+        tcp_client(std::uint32_t client_id, const std::string &host,
+                   std::uint16_t port, std::uint32_t max_msg_count);
         void start();
 
     private:
@@ -33,8 +34,8 @@ namespace tcp_client {
         logger::logger logger_;
         const std::uint32_t client_id_;
         const common::remote_server r_server_;
-        const std::uint32_t max_messages_count_{1000};
-        std::uint32_t curr_message_number_{0};
+        const std::uint32_t max_msg_count_;
+        std::uint32_t curr_msg_number_{0};
     };
 
 }

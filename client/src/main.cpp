@@ -16,7 +16,8 @@ boost::program_options::variables_map parse_command_line(int argc, const char* c
         ("help,h", "Help message")
         ("client,c", po::value<std::uint32_t>()->required(), "Client ID")
         ("host,h", po::value<std::string>()->default_value("example.com"), "Host to connect")
-        ("port,p", po::value<std::uint16_t>()->default_value(8888), "Port to connect");
+        ("port,p", po::value<std::uint16_t>()->default_value(8888), "Port to connect")
+        ("max_messages,m", po::value<std::uint32_t>()->default_value(1000), "Max messages count to send");
         po::store(po::parse_command_line(argc, argv, desc), vm);
         po::notify(vm);
     } catch (const po::required_option &ex) {
@@ -41,10 +42,10 @@ int main(int argc, char **argv)
         const std::uint32_t client_id{params["client"].as<std::uint32_t>()};
         const std::string host{params["host"].as<std::string>()};
         const std::uint16_t port{params["port"].as<std::uint16_t>()};
+        const std::uint32_t max_msg{params["max_messages"].as<std::uint32_t>()};
 
-        tcp_client::tcp_client client{client_id, host, port};
+        tcp_client::tcp_client client{client_id, host, port, max_msg};
         client.start();
-
     } catch (const std::exception &ex ) {
         std::cout << "Client failed with error: " << ex.what() << std::endl;
     } catch (...) {
