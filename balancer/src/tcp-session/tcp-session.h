@@ -9,6 +9,8 @@
 namespace balancer {
 
     class session_iface {
+    // зачем нужен этот интерфейс? у нас есть разные сессии? на мой взгляд, совершенно не нужная сущность.
+
     public:
         virtual ~session_iface() = default;
         virtual void start() = 0;
@@ -16,6 +18,8 @@ namespace balancer {
     };
 
     template<typename close_op_t>
+    // close_op_t: разумнее использовать std::function вместо вместо шаблонного параметра; в результате весь код в h-файле
+    
     class tcp_session
         : public session_iface
     {
@@ -164,7 +168,10 @@ namespace balancer {
         msg_t read_message()
         {
             proto::bytes bytes(msg_t::message_length());
+            
             bufferevent_read(client_buffer_.get(), bytes.data(), bytes.size());
+            // здесь может быть прочтено меньше байт чем размер сообщения. это было везение, если вычитывалось сообщение целиком.
+            
             msg_t msg{bytes};
             msg.load();
             return msg;
