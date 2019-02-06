@@ -55,6 +55,9 @@ namespace balancer {
         logger_.info("New client connection was accepted, client address: ", client_addr);
         const auto session_it{sessions_.emplace(sessions_.end())};
         const auto close_op{[this, session_it]() { sessions_.erase(session_it); }};
+        // то есть сессия в своем методе stop() вызовет close_op и напрямую полезет в коллекцию sessions_.
+        // безобразие!
+        
         using session_t = tcp_session<decltype(close_op)>;
         *session_it = std::make_unique<session_t>(eb_.get(), socket, close_op, route_map_, logger_);
         (*session_it)->start();
